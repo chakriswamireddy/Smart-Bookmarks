@@ -1,20 +1,40 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 type Props = {
   open: boolean
   onClose: () => void
+  bookmark?: {
+    id: string
+    title: string
+    url: string
+  }
 }
 
-export default function BookmarkModal({ open, onClose }: Props) {
-  useEffect(() => {
-    if (open) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = 'auto'
-    }
+export default function BookmarkModal({ open, onClose, bookmark }: Props) {
+  const supabase = createClient();
 
+//   console.log(bookmark)
+
+  const [title, setTitle] = useState(  '')
+  const [url, setUrl] = useState( '')
+  const [loading, setLoading] = useState(false);
+
+
+  useEffect(() => {
+    if (bookmark) {
+      setTitle(bookmark.title)
+      setUrl(bookmark.url)
+    } else {
+      setTitle('')
+      setUrl('')
+    }
+  }, [bookmark, open])
+
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : 'auto'
     return () => {
       document.body.style.overflow = 'auto'
     }
@@ -22,56 +42,75 @@ export default function BookmarkModal({ open, onClose }: Props) {
 
   if (!open) return null
 
+  const handleSave = async (e: React.SubmitEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    if (bookmark) {
+      await supabase
+        .from('bookmarks2')
+        .update({ title, url })
+        .eq('id', bookmark.id)
+    } else {
+      await supabase.from('bookmarks2').insert({ title, url })
+    }
+
+    setLoading(false)
+    onClose()
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
- 
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={onClose}
-      />
- 
-      <div className="relative bg-white w-full max-w-md rounded-xl shadow-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Add Bookmark
+      <div className="absolute  inset-0 backdrop-blur-sm" onClick={onClose} />
+
+      <div className="relative w-full max-w-md rounded-xl bg-slate-700   p-6 shadow-sm">
+        <h2 className="text-lg font-semibold mb-4">
+          {bookmark ? 'Update Bookmark' : 'Add Bookmark'}
         </h2>
 
-        <form className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+        <form onSubmit={handleSave} className="space-y-5 ">
+          <div className="space-y-1">
+            <label htmlFor="title" className="text-sm font-medium">
               Title
             </label>
             <input
-              type="text"
-              placeholder="Example: Supabase Docs"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-1"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-1">
+            <label htmlFor="url" className="text-sm font-medium">
               URL
             </label>
             <input
+              id="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
               type="url"
-              placeholder="https://supabase.com"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+              className="w-full rounded-lg border px-3 py-2 text-sm outline-none focus:ring-1"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4">
+          <div className="flex justify-end gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100"
+              className="text-sm px-4 py-2 rounded-md border"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="px-4 py-2 text-sm rounded-lg bg-gray-900 text-white hover:bg-gray-800"
+              disabled={loading}
+              className="text-sm px-4 py-2 rounded-md border font-medium"
             >
-              Save
+              {loading ? 'Saving…' : 'Save'}
             </button>
           </div>
         </form>
