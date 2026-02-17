@@ -17,10 +17,13 @@ const toBookmark = (row: any): Bookmark => ({
     url: row.url,
   })
 
-export default async function BookmarkList( ) {
+export default function BookmarkList( ) {
   const supabase = createClient();
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const  getUserId =async () =>  {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user?.id || null;
+  }
 
   const [selected, setSelected] = useState<Bookmark | null>(null);
   const [open, setOpen] = useState(false);
@@ -67,7 +70,7 @@ export default async function BookmarkList( ) {
           event: '*',
           schema: 'public',
           table: 'bookmarks2',
-          filter: `user_id=eq.${user?.id}`, 
+          filter: `user_id=eq.${getUserId()}`, 
         },
         (payload) => {
           console.log('realtime', payload.eventType, payload)
