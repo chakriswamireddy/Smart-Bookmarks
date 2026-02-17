@@ -30,7 +30,7 @@ export default async function Page() {
         <BookmarkHeader />
 
         <BookmarkList />
-        {/* <RealtimeTest /> */}
+        <RealtimeTest />
       </div>
     </main>
   );

@@ -92,7 +92,7 @@ export default function RealtimeTest() {
   const clearLogs = () => setLogs([])
 
   return (
-    <div className="p-6 border rounded-lg space-y-4 max-w-2xl">
+    <div className=" hidden p-6 border rounded-lg space-y-4 max-w-2xl">
       <div className="flex items-center justify-between">
         <div className="font-semibold text-lg">
           Realtime Status:{' '}
@@ -119,7 +119,7 @@ export default function RealtimeTest() {
         </button>
       </div>
 
-      <div className="bg-gray-50 p-4 rounded text-sm font-mono space-y-1 max-h-96 overflow-y-auto">
+      <div className="bg-gray-900 p-4 rounded text-sm font-mono space-y-1 max-h-96 overflow-y-auto">
         {logs.length === 0 ? (
           <div className="text-gray-400">Waiting for events...</div>
         ) : (

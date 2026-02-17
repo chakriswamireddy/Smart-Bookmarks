@@ -58,11 +58,11 @@ export default function BookmarkList( ) {
  
     const channel = supabase
       .channel('bookmarks2-realtime',
-        // {
-        //     config: {
-        //       broadcast: { self: true },  
-        //     },
-        //   }
+        {
+            config: {
+              broadcast: { self: true },  
+            },
+          }
         )
       .on(
         'postgres_changes',
@@ -70,7 +70,7 @@ export default function BookmarkList( ) {
           event: '*',
           schema: 'public',
           table: 'bookmarks2',
-          filter: `user_id=eq.${getUserId()}`, 
+          // filter: `user_id=eq.${getUserId()}`, 
         },
         (payload) => {
           console.log('realtime', payload.eventType, payload)
