@@ -53,11 +53,12 @@ export default function BookmarkList( ) {
  
     const channel = supabase
       .channel('bookmarks2-realtime',
-        {
-            config: {
-              broadcast: { self: true },  
-            },
-          })
+        // {
+        //     config: {
+        //       broadcast: { self: true },  
+        //     },
+        //   }
+        )
       .on(
         'postgres_changes',
         {
